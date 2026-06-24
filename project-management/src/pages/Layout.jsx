@@ -1,5 +1,3 @@
-//HARSHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHhh
-
 import { useState, useEffect } from 'react'
 import Navbar from '../components/Navbar'
 import Sidebar from '../components/Sidebar'
@@ -8,40 +6,42 @@ import { useDispatch, useSelector } from 'react-redux'
 import { loadTheme } from '../features/themeSlice.js'
 import { Loader2Icon } from 'lucide-react'
 import { fetchWorkspaces } from '../features/workspaceSlice.js'
-import {useUser,SignIn,useAuth,CreateOrganization} from '@clerk/clerk-react'
+import { useUser, SignIn, useAuth, CreateOrganization } from '@clerk/clerk-react'
+
 const Layout = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-    const { loading,workspaces } = useSelector((state) => state.workspace)
+    const { loading, workspaces } = useSelector((state) => state.workspace)
     const dispatch = useDispatch()
-    const {user,isLoaded} = useUser()
-    const {getToken} = useAuth()
+    const { user, isLoaded } = useUser()
+    const { getToken } = useAuth()
 
-    // Initial load of workspaces
+    // ✅ FIXED: Always fetch when user is ready
     useEffect(() => {
-        if (isLoaded && user && workspaces.length === 0) {
+        if (isLoaded && user) {
             dispatch(fetchWorkspaces({ getToken }))
         }
-    }, [user, isLoaded])
-
+    }, [user, isLoaded, dispatch])
 
     // Initial load of theme
     useEffect(() => {
         dispatch(loadTheme())
-    }, [])
+    }, [dispatch])
 
-    if(!user){
+    if (!user) {
         return (
-        <div className="flex justify-center items-center h-screen bg-white dark:bg-zinc-950">
-            <SignIn/>
-        </div>
+            <div className="flex justify-center items-center h-screen bg-white dark:bg-zinc-950">
+                <SignIn />
+            </div>
         )
     }
+
     if (loading) return (
         <div className='flex items-center justify-center h-screen bg-white dark:bg-zinc-950'>
             <Loader2Icon className="size-7 text-blue-500 animate-spin" />
         </div>
     )
-    if(user && workspaces.length === 0 ){
+
+    if (user && workspaces.length === 0) {
         return (
             <div className='min-h-screen flex justify-center items-center'>
                 <CreateOrganization />
