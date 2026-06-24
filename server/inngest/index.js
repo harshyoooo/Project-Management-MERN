@@ -56,10 +56,20 @@ const syncUserUpdation = inngest.createFunction(
 
 // Inngest Function to save workspace data to a database
 const syncWorkspaceCreation = inngest.createFunction(
-  { id: 'sync-workspace-from-clerk' ,
-   triggers: { event: 'clerk/organization.created' } },
+  { id: 'sync-workspace-from-clerk',
+    triggers: { event: 'clerk/organization.created' } },
   async ({ event }) => {
     const { data } = event;
+
+    const existingUser = await prisma.user.findUnique({
+      where: { id: data.created_by }
+    });
+
+    if (!existingUser) {
+      console.log("User not found, skipping workspace creation");
+      return;
+    }
+
     await prisma.workspace.create({
       data: {
         id: data.id,
@@ -68,15 +78,15 @@ const syncWorkspaceCreation = inngest.createFunction(
         ownerId: data.created_by,
         image_url: data.image_url,
       }
-    })
-    // Add creator as ADMIN member
+    });
+
     await prisma.workspaceMember.create({
       data: {
         userId: data.created_by,
         workspaceId: data.id,
         role: "ADMIN"
       }
-    })
+    });
   }
 )
 
