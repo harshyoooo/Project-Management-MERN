@@ -41,7 +41,7 @@ const Layout = () => {
             <Loader2Icon className="size-7 text-blue-500 animate-spin" />
         </div>
     )
-    if(user && workspaces.length === 0 && user.organizationMemberships?.length === 0){
+    if(user && workspaces.length === 0 ){
         return (
             <div className='min-h-screen flex justify-center items-center'>
                 <CreateOrganization />

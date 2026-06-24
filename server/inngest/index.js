@@ -61,15 +61,19 @@ const syncWorkspaceCreation = inngest.createFunction(
   async ({ event }) => {
     const { data } = event;
 
-    const existingUser = await prisma.user.findUnique({
-      where: { id: data.created_by }
+    // 🔥 ALWAYS ensure user exists
+    await prisma.user.upsert({
+      where: { id: data.created_by },
+      update: {},
+      create: {
+        id: data.created_by,
+        email: "placeholder@gmail.com", // temp
+        name: "Unknown User",
+        image: ""
+      }
     });
 
-    if (!existingUser) {
-      console.log("User not found, skipping workspace creation");
-      return;
-    }
-
+    // 🔥 Now safe to create workspace
     await prisma.workspace.create({
       data: {
         id: data.id,
@@ -88,7 +92,7 @@ const syncWorkspaceCreation = inngest.createFunction(
       }
     });
   }
-)
+);
 
 // Inngest Function to update workspace data in database
 const syncWorkspaceUpdation = inngest.createFunction(
