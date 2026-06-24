@@ -122,7 +122,10 @@ const workspaceSlice = createSlice({
                 } : w
             );
         },
-        extraReducers: (builder) => {
+         
+
+    },
+    extraReducers: (builder) => {
                 builder.addCase(fetchWorkspaces.pending, (state) => {
                 state.loading = true
                 });
@@ -152,9 +155,7 @@ const workspaceSlice = createSlice({
                     state.loading = false
                 });
 
-        }   
-
-    }
+    }  
 });
 
 export const { setWorkspaces, setCurrentWorkspace, addWorkspace, updateWorkspace, deleteWorkspace, addProject, addTask, updateTask, deleteTask } = workspaceSlice.actions;
