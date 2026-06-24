@@ -18,6 +18,7 @@ export const fetchWorkspaces = createAsyncThunk(
           Authorization: `Bearer ${await getToken()}`
         }
       })
+      console.log("FULL RESPONSE:", data)
       return data.workspaces || []
     } catch (error) {
       console.log(error?.response?.data?.message || error.message)
