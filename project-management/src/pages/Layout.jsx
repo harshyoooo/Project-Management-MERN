@@ -20,12 +20,12 @@ const Layout = () => {
         if (isLoaded && user) {
             dispatch(fetchWorkspaces({ getToken }))
         }
-    }, [user, isLoaded, dispatch])
+    }, [user, isLoaded])
 
     // Initial load of theme
     useEffect(() => {
         dispatch(loadTheme())
-    }, [dispatch])
+    }, [])
 
     if (!user) {
         return (
