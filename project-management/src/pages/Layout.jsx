@@ -2,30 +2,30 @@ import { useState, useEffect } from 'react'
 import Navbar from '../components/Navbar'
 import Sidebar from '../components/Sidebar'
 import { Outlet } from 'react-router-dom'
+import { CreateOrganization, SignIn, useAuth, useUser } from '@clerk/clerk-react'
 import { useDispatch, useSelector } from 'react-redux'
-import { loadTheme } from '../features/themeSlice.js'
+import { fetchWorkspaces } from '../features/workspaceSlice'
+import { loadTheme } from '../features/themeSlice'
 import { Loader2Icon } from 'lucide-react'
-import { fetchWorkspaces } from '../features/workspaceSlice.js'
-import { useUser, SignIn, useAuth, CreateOrganization } from '@clerk/clerk-react'
 
 const Layout = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-    const { loading, workspaces } = useSelector((state) => state.workspace)
-    const dispatch = useDispatch()
     const { user, isLoaded } = useUser()
+    const { workspaces, loading } = useSelector((state) => state.workspace)
     const { getToken } = useAuth()
-
-    // ✅ FIXED: Always fetch when user is ready
-    useEffect(() => {
-        if (isLoaded && user) {
-            dispatch(fetchWorkspaces({ getToken }))
-        }
-    }, [user, isLoaded])
+    const dispatch = useDispatch()
 
     // Initial load of theme
     useEffect(() => {
         dispatch(loadTheme())
     }, [])
+
+    // Initial load of workspaces
+    useEffect(() => {
+        if (isLoaded && user && workspaces.length === 0) {
+            dispatch(fetchWorkspaces({ getToken }))
+        }
+    }, [user, isLoaded])
 
     if (!user) {
         return (
@@ -43,7 +43,7 @@ const Layout = () => {
 
     if (user && workspaces.length === 0) {
         return (
-            <div className='min-h-screen flex justify-center items-center'>
+            <div className="min-h-screen flex justify-center items-center">
                 <CreateOrganization />
             </div>
         )
