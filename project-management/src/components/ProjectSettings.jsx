@@ -1,9 +1,17 @@
 import { format } from "date-fns";
+import { useDispatch } from "react-redux";
 import { Plus, Save } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useAuth } from "@clerk/clerk-react";
+import { fetchWorkspaces } from "../features/workspaceSlice";
+import api from "../configs/api";
+import toast from "react-hot-toast";
 import AddProjectMember from "./AddProjectMember";
 
 export default function ProjectSettings({ project }) {
+    
+    const dispatch = useDispatch();
+    const { getToken } = useAuth();
 
     const [formData, setFormData] = useState({
         name: "New Website Launch",
@@ -20,7 +28,20 @@ export default function ProjectSettings({ project }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+        setIsSubmitting(true);
+        toast.loading("Saving...");
+        try {
+            const { data } = await api.put(`/api/projects`, formData, { headers: { Authorization: `Bearer ${await getToken()}` } });
+            setIsDialogOpen(false);
+            dispatch(fetchWorkspaces({ getToken }));
+            toast.dismissAll();
+            toast.success(data.message);
+        } catch (error) {
+            toast.dismissAll();
+            toast.error(error?.response?.data?.message || error.message);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     useEffect(() => {
@@ -118,7 +139,7 @@ export default function ProjectSettings({ project }) {
                             {project.members.map((member, index) => (
                                 <div key={index} className="flex items-center justify-between px-3 py-2 rounded dark:bg-zinc-800 text-sm text-zinc-900 dark:text-zinc-300" >
                                     <span> {member?.user?.email || "Unknown"} </span>
-                                    {project.team_lead === member.user.id && <span className="px-2 py-0.5 rounded-xs ring ring-zinc-200 dark:ring-zinc-600">Team Lead</span>}
+                                    {project.team_lead === member?.user?.id && <span className="px-2 py-0.5 rounded-xs ring ring-zinc-200 dark:ring-zinc-600">Team Lead</span>}
                                 </div>
                             ))}
                         </div>

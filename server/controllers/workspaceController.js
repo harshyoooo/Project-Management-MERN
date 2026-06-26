@@ -11,15 +11,23 @@ export const getUserWorkspaces = async (req, res) => {
       include: {
         members: { include: { user: true } },
         projects: {
-          include: {
-            tasks: {
-              include: {
-                assignee: true,
-                comments: { include: { user: true } }
-              }
-            },
-            members: {}
-          }
+            include: {
+                tasks: {
+                    include: {
+                        assignee: true,
+                        comments: {
+                            include: {
+                                user: true
+                            }
+                        }
+                    }
+                },
+                members: {
+                    include: {
+                        user: true
+                    }
+                }
+            }
         },
         owner: true
     }
